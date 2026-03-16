@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP HTTP Client</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; line-height: 1.6; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; }
+        pre { background: #eee; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        .status-message { margin-top: 20px; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MCP HTTP/SSE Client</h1>
+        <p class="info">This page connects to an MCP server running over HTTP/SSE. It will attempt to discover the server's capabilities (Resources, Prompts, Tools) and display them below.</p>
+        <p class="info"><strong>Make sure the `advanced_mcp_server.py` is running in HTTP mode (e.g., `uv run advanced_mcp_server.py` after modifying to run `asyncio.run(main())`) before opening this page.</strong></p>
+        
+        <div id="status" class="status-message info">Attempting to connect to MCP server...</div>
+
+        <h2>Discovered Resources</h2>
+        <pre id="resources-output">No resources discovered yet.</pre>
+
+        <h2>Discovered Prompts</h2>
+        <pre id="prompts-output">No prompts discovered yet.</pre>
+
+        <h2>Discovered Tools</h2>
+        <pre id="tools-output">No tools discovered yet.</pre>
+    </div>
+
+    <script>
+        const serverUrl = "http://127.0.0.1:8000/sse"; // MCP SSE endpoint
+        const statusDiv = document.getElementById('status');
+        const resourcesOutput = document.getElementById('resources-output');
+        const promptsOutput = document.getElementById('prompts-output');
+        const toolsOutput = document.getElementById('tools-output');
+
+        function updateStatus(message, type = 'info') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message ${type}`;
+        }
+
+        async function fetchMcpCapabilities() {
+            updateStatus("Fetching MCP capabilities...", "info");
+            try {
+                // MCP HTTP transport typically exposes /manifest or uses SSE for discovery.
+                // Assuming FastMCP's HTTP transport also supports direct API calls for listing
+                // or that the SSE stream contains the manifest.
+                // For direct JSON API, it might be /resources, /prompts, /tools or a /manifest.
+                // FastMCP's HTTPTransport seems to directly support /sse which pushes events.
+
+                const response = await fetch("http://127.0.0.1:8000/manifest"); // Attempt to fetch manifest directly
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const manifest = await response.json();
+                
+                resourcesOutput.textContent = JSON.stringify(manifest.resources, null, 2);
+                promptsOutput.textContent = JSON.stringify(manifest.prompts, null, 2);
+                toolsOutput.textContent = JSON.stringify(manifest.tools, null, 2);
+                updateStatus("Successfully connected and fetched MCP manifest!", "success");
+
+            } catch (error) {
+                updateStatus(`Error fetching MCP capabilities: ${error.message}. Ensure server is running on http://127.0.0.1:8000`, "error");
+                console.error("Fetch error:", error);
+            }
+        }
+
+        // Initially fetch capabilities when the page loads
+        document.addEventListener('DOMContentLoaded', fetchMcpCapabilities);
+
+        // Optional: Implement SSE connection if the manifest is streamed
+        // const eventSource = new EventSource(serverUrl);
+
+        // eventSource.onopen = () => {
+        //     updateStatus("Connected to MCP SSE stream.", "info");
+        // };
+
+        // eventSource.onmessage = (event) => {
+        //     const data = JSON.parse(event.data);
+        //     // This part depends on how FastMCP SSE structures its events
+        //     // For demonstration, let's assume it sends manifest updates
+        //     if (data.type === 'manifest_update') {
+        //         resourcesOutput.textContent = JSON.stringify(data.manifest.resources, null, 2);
+        //         promptsOutput.textContent = JSON.stringify(data.manifest.prompts, null, 2);
+        //         toolsOutput.textContent = JSON.stringify(data.manifest.tools, null, 2);
+        //         updateStatus("Received manifest update via SSE!", "success");
+        //     } else {
+        //         console.log("Received other SSE event:", data);
+        //     }
+        // };
+
+        // eventSource.onerror = (error) => {
+        //     updateStatus(`SSE connection error: ${error.message}. Is the server running?`, "error");
+        //     console.error("SSE Error:", error);
+        //     eventSource.close();
+        // };
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "Market Analyst Agent",
+  "description": "An agent that performs deep analysis on stock market trends and sentiment.",
+  "version": "1.0.0",
+  "capabilities": [
+    {
+      "name": "analyze_sentiment",
+      "description": "Analyzes the sentiment of recent news for a given stock ticker.",
+      "parameters": {
+        "ticker": "string"
+      }
+    },
+    {
+      "name": "trend_forecast",
+      "description": "Forecasts potential price trends based on historical data.",
+      "parameters": {
+        "ticker": "string",
+        "days": "integer"
+      }
+    }
+  ],
+  "endpoints": {
+    "task_creation": "/tasks",
+    "task_status": "/tasks/{task_id}",
+    "well_known": "/.well-known/agent.json"
+  },
+  "auth": "none"
+}
