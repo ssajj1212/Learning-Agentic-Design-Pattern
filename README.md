@@ -51,10 +51,12 @@ Each chapter has a corresponding folder with some example of Python scripts.
 1.  Ensure you have **Python 3.13+** installed.
 2.  Install dependencies: `pip install -r requirements.txt` (or use `uv sync` if using the provided `pyproject.toml`).
 3.  Set up your `.env` file in the `agentic_design/` folder with your API keys (if using cloud models).
+
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
 This is an educational resource designed to help learners understand agentic design patterns. Feel free to use, modify, and share the code for learning purposes.
+
+This project is licensed under the **MIT License** 
+
 ---
 *Happy Learning! Build agents that think, collaborate, and evolve.*
